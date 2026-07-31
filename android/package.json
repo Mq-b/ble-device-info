@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "expo": "~55.0.0",
+    "expo-system-ui": "~55.0.0",
     "react": "19.2.0",
     "react-native": "0.83.6",
     "react-native-ble-plx": "^3.0.0",
