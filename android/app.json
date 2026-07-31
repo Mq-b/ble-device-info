@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "ble-device-info-android",
+    "slug": "ble-device-info-android",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      ["react-native-ble-plx", { "isBackgroundEnabled": false, "modes": ["peripheral", "central"] }]
+    ],
+    "android": {
+      "package": "com.example.bledeviceinfo",
+      "permissions": [
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ]
+    }
+  }
+}

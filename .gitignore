@@ -1,0 +1,25 @@
+# 构建产物
+build/
+build-win/
+build-*/
+cmake-build-*/
+
+# 配置（本地覆盖）
+config.json
+
+# 编辑器/系统
+.vscode/
+.idea/
+*.user
+Thumbs.db
+
+# Android (Expo)
+android/node_modules/
+android/.expo/
+android/.gradle/
+android/android/
+android/ios/
+android/dist/
+android/web-build/
+android/*.jks
+android/*.keystore

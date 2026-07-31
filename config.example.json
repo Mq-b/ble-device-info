@@ -1,0 +1,19 @@
+{
+  "identity": {
+    "title": "我的设备",
+    "manufacturer": "",
+    "machineVersion": "",
+    "serial": ""
+  },
+  "ble": {
+    "broadcastName": "",
+    "advertiseServiceUuid": true,
+    "serviceUuid": "7e57d001-3f9a-4a6b-9f6c-000000000001",
+    "infoCharUuid": "7e57d002-3f9a-4a6b-9f6c-000000000002",
+    "statusCharUuid": "7e57d003-3f9a-4a6b-9f6c-000000000003"
+  },
+  "sysinfo": {
+    "cpuSampleMs": 1000,
+    "statusIntervalMs": 2000
+  }
+}
