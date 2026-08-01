@@ -136,8 +136,11 @@ public:
                     logInfo("GATT 服务广播已启动");
                 }
             });
-            logInfo("启动 GATT 服务广播...");
-            provider_.StartAdvertising();
+            logInfo("启动 GATT 服务广播（可发现 + 可连接）...");
+            GattServiceProviderAdvertisingParameters advParams;
+            advParams.IsDiscoverable(true);   // 允许被手机扫描发现
+            advParams.IsConnectable(true);    // 允许手机发起连接
+            provider_.StartAdvertising(advParams);
 
             // 独立广播：本地名称（序列号）
             // 注意：服务 UUID 由 GattServiceProvider 广播，publisher 只广播名字，
@@ -212,20 +215,25 @@ private:
         }
 
         const GattLocalCharacteristic characteristic = result.Characteristic();
-        characteristic.ReadRequested([this, valueGetter](GattLocalCharacteristic const&, GattReadRequestedEventArgs const& args) {
+        characteristic.ReadRequested([this, uuidStr, valueGetter](GattLocalCharacteristic const&, GattReadRequestedEventArgs const& args) {
             // 读取请求为异步获取，完成后在回调中应答
             const auto deferral = args.GetDeferral();
             const auto requestAsync = args.GetRequestAsync();
-            requestAsync.Completed([this, valueGetter, deferral](auto const& sender, winrt::Windows::Foundation::AsyncStatus status) {
+            requestAsync.Completed([this, uuidStr, valueGetter, deferral](auto const& sender, winrt::Windows::Foundation::AsyncStatus status) {
                 try {
                     if (status == winrt::Windows::Foundation::AsyncStatus::Completed) {
                         const auto request = sender.GetResults();
+                        logInfo("收到读取请求: " + uuidStr + " offset=" + std::to_string(request.Offset()));
                         const IBuffer buffer = toBuffer(valueGetter(), request.Offset());
                         if (buffer == nullptr) {
+                            logWarn("偏移越界，返回协议错误: " + uuidStr + " offset=" + std::to_string(request.Offset()));
                             request.RespondWithProtocolError(GattProtocolError::InvalidOffset());
                         } else {
                             request.RespondWithValue(buffer);
+                            logInfo("已应答: " + uuidStr);
                         }
+                    } else {
+                        logWarn("读取请求未完成，状态码=" + std::to_string(static_cast<int>(status)));
                     }
                 } catch (const hresult_error& e) {
                     logWarn(std::string("处理读取请求失败: ") + winrt::to_string(e.message()));

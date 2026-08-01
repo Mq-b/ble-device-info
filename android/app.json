@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "newArchEnabled": false,
     "plugins": [
       ["react-native-ble-plx", { "isBackgroundEnabled": false, "modes": ["peripheral", "central"] }]
     ],
