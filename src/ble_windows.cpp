@@ -7,6 +7,7 @@
 #include "ble.h"
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -127,6 +128,7 @@ public:
 
             // 服务广播状态监控
             provider_.AdvertisementStatusChanged([this](GattServiceProvider const&, GattServiceProviderAdvertisementStatusChangedEventArgs const& args) {
+                advStatusEvent_ = true;
                 const auto status = args.Status();
                 if (status == GattServiceProviderAdvertisementStatus::Aborted) {
                     logError("GATT 服务广播被中止（请确认蓝牙适配器支持 LE 外设角色）");
@@ -158,9 +160,17 @@ public:
 
             logInfo("BLE 外设已启动");
 
-            // 主循环：等待停止信号
+            // 主循环：等待停止信号；并诊断广播是否真正生效
+            const auto startTime = std::chrono::steady_clock::now();
+            bool advWarned = false;
             while (!stopRequested_.load()) {
                 Sleep(200);
+                if (!advWarned && !advStatusEvent_.load() &&
+                    std::chrono::steady_clock::now() - startTime > std::chrono::seconds(5)) {
+                    advWarned = true;
+                    logWarn("5 秒内未收到广播状态事件，GATT 服务广播可能未生效（部分适配器/驱动限制）。"
+                            "请用手机 nRF Connect 扫描确认；若不可见，建议改用 Linux 主机或支持外设角色的 USB 蓝牙适配器");
+                }
             }
 
             publisher_.Stop();
@@ -183,6 +193,7 @@ private:
     GattServiceProvider provider_{nullptr}; ///< GATT 服务提供者
     BluetoothLEAdvertisementPublisher publisher_{nullptr}; ///< 广播发布器
     std::atomic<bool> stopRequested_{false}; ///< 停止标志
+    std::atomic<bool> advStatusEvent_{false}; ///< 是否收到过广播状态事件
 
     /**
      * @brief 注册一个只读特征（支持分段读取）
